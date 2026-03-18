@@ -1,0 +1,63 @@
+{
+    "name": "amondar-libs/php-postman",
+    "description": "Allow to create postman documentation for your API",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Sereda Oleg",
+            "email": "zaxodu11@gmail.com"
+        }
+    ],
+    "bin": [
+        "bin/postman"
+    ],
+    "require": {
+        "php": "^8.3",
+        "spatie/laravel-package-tools": "^1.92",
+        "illuminate/support": "^10|^11|^12",
+        "symfony/console": "^7.4",
+        "nunomaduro/termwind": "^2.3",
+        "amondar-libs/class-attributes": "^2.2"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^4.3",
+        "laravel/pint": "^1.24",
+        "symfony/var-dumper": "^7.0",
+        "spatie/pest-plugin-test-time": "^2.2",
+        "amondar-libs/php-markdown": "^1.3",
+        "rector/rector": "^2.3",
+        "driftingly/rector-laravel": "^2.1",
+        "larastan/larastan": "^3.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Amondar\\Postman\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Amondar\\Postman\\Laravel\\PostmanServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "ppest": "pest --parallel",
+        "pre-deploy": [
+            "./vendor/bin/pint",
+            "./vendor/bin/rector process --dry-run",
+            "./vendor/bin/phpstan analyse"
+        ]
+    }
+}

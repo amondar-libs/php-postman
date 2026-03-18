@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types = 1);
+
+use Amondar\Postman\Commands\ExportCommand;
+use Symfony\Component\Console\Application;
+
+foreach ([
+    dirname(__DIR__, 4) . '/vendor/autoload.php',
+    dirname(__DIR__) . '/vendor/autoload.php',
+] as $autoloadPath) {
+    if (file_exists($autoloadPath)) {
+        require_once $autoloadPath;
+
+        break;
+    }
+}
+
+$application = new Application(
+    'Postman Documentation',
+    '1.0.0',
+);
+
+$application->addCommands([
+    new ExportCommand,
+]);
+
+$application->run();

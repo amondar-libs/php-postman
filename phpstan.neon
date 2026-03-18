@@ -1,0 +1,20 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
+
+parameters:
+    paths:
+        - src/
+
+    # Level 10 is the highest level
+    level: 5
+
+    treatPhpDocTypesAsCertain: false
+    checkOctaneCompatibility: true
+
+    ignoreErrors:
+        - '#Call to an undefined method .+::getPostmanAction\(\)#'
+        - '#Call to an undefined method .+::auth\(\)#'
+        - '#Call to an undefined method .+::additionalHeaders\(\)#'
+        - '#Call to an undefined method .+::structureDepth\(\)#'
+        - '#PHPDoc tag @var for property Amondar\\Postman\\Route\\RouteFilter::\$filters contains unresolvable type#'
