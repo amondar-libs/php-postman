@@ -2,3 +2,5 @@
 phpunit.xml
 /LaravelApp
 /vendor
+/.idea
+/.phpunit.cache
