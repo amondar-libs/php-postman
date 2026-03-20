@@ -14,10 +14,11 @@
     "require": {
         "php": "^8.3",
         "spatie/laravel-package-tools": "^1.92",
-        "illuminate/support": "^10|^11|^12",
+        "illuminate/support": "^10|^11|^12|^13",
         "symfony/console": "^7.4",
         "nunomaduro/termwind": "^2.3",
-        "amondar-libs/class-attributes": "^2.2"
+        "amondar-libs/class-attributes": "^3.0",
+        "spatie/php-attribute-reader": "^1.1"
     },
     "require-dev": {
         "orchestra/testbench": "^10.0",

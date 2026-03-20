@@ -4,7 +4,8 @@ declare(strict_types = 1);
 
 namespace Amondar\Postman\Route;
 
-use Amondar\ClassAttributes\Results\DiscoveredTarget;
+use Amondar\ClassAttributes\Enums\Target;
+use Amondar\ClassAttributes\Results\Discovered;
 use Amondar\Postman\Attributes\PostmanFormData;
 use Closure;
 use Illuminate\Support\Collection;
@@ -64,7 +65,7 @@ final readonly class RouteAction
     }
 
     /**
-     * @param  Collection<int, DiscoveredTarget<object, PostmanFormData>>  $vocabulary
+     * @param Collection<class-string, Collection<string, Collection<int, Discovered<PostmanFormData>>> $vocabulary
      */
     public function getFormData(Collection $vocabulary): array
     {
@@ -82,29 +83,27 @@ final readonly class RouteAction
     /**
      * @param  string  $class  The fully qualified name of the class for which form data is being retrieved.
      * @param  string|null  $method  The method name, if applicable, for which specific form data retrieval is attempted.
-     * @param  Collection<int, DiscoveredTarget<object, PostmanFormData>>  $vocabulary  A collection of discovered targets containing metadata and form data mappings.
+     * @param  Collection<class-string, Collection<string, Collection<int, Discovered<PostmanFormData>>>  $vocabulary  A collection of discovered targets containing metadata and form data mappings.
      *
      * @throws ReflectionException If the method or class reflection fails during processing.
      */
     private function getFormDataOnClass(string $class, ?string $method, Collection $vocabulary): array
     {
-        /** @var DiscoveredTarget<object, PostmanFormData>|null $discovery */
-        $discovery = $vocabulary->where('target', $class)->first();
+        $discovery = $vocabulary->get($class);
 
         // If the target class has a PostmanFormData annotation, return its contents.
-        if ($discovery?->onClass->isNotEmpty()) {
-            return $discovery->onClass->first()->render();
+        if ($discovery?->has(Target::onClass->value)) {
+            return $discovery->get(Target::onClass->value)->first()->attribute->render();
         }
 
         // If a specific method was requested, attempt to retrieve form data based on that method.
         if ($method !== null) {
             // If the target class has a PostmanFormData annotation for the specified method, return its contents.
             if (
-                $discovery?->onMethods->isNotEmpty()
-                // @phpstan-ignore-next-line
-                && $attribute = $discovery?->onMethods->where('target', $method)->first()?->attributes[0]
+                $discovery?->has(Target::method->value)
+                && $discovered = $discovery->get(Target::method->value)->where('name', $method)->first()
             ) {
-                return $attribute->render();
+                return $discovered->attribute->render();
             }
 
             // Otherwise, attempt to retrieve form data based on the parameters of the method that can be instantiated as classes.

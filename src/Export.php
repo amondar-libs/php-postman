@@ -157,7 +157,7 @@ readonly class Export implements Arrayable
 
         $formDataVocabulary = $this->dataPaths === [] ?
             collect()
-            : Parse::attribute(PostmanFormData::class)->ascend()->all(...$this->dataPaths);
+            : Parse::attribute(PostmanFormData::class)->ascend()->in(...$this->dataPaths);
 
         /** @var Route\Route $route */
         foreach ($this->routes as $route) {

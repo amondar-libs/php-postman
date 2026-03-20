@@ -16,7 +16,7 @@ it('should return form data for a `controller class', function () {
 
     $vocabulary = Parse::attribute(PostmanFormData::class)
         ->ascend()
-        ->all(__DIR__ . '/../../_fixtures/controllers');
+        ->in(__DIR__ . '/../../_fixtures/controllers');
 
     expect($action->getFormData($vocabulary))->toMatchArray(['my' => 'data']);
 })->group('route-action', 'route-action::form-data', 'route-action::form-data:controller');
@@ -29,7 +29,7 @@ it('should return form data for a `controller method`', function () {
 
     $vocabulary = Parse::attribute(PostmanFormData::class)
         ->ascend()
-        ->all(__DIR__ . '/../../_fixtures/controllers');
+        ->in(__DIR__ . '/../../_fixtures/controllers');
 
     expect($action->getFormData($vocabulary))->toMatchArray(['my' => 'method data']);
 })->group('route-action', 'route-action::form-data', 'route-action::form-data:method');
@@ -42,7 +42,7 @@ it('should return form data for a `controller method request`', function () {
 
     $vocabulary = Parse::attribute(PostmanFormData::class)
         ->ascend()
-        ->all(__DIR__ . '/../../_fixtures/controllers');
+        ->in(__DIR__ . '/../../_fixtures/controllers');
 
     expect($action->getFormData($vocabulary))->toMatchArray(['my' => 'request data']);
 })->group('route-action', 'route-action::form-data', 'route-action::form-data:request');
@@ -55,7 +55,7 @@ it('should return form data for a `controller method factory`', function () {
 
     $vocabulary = Parse::attribute(PostmanFormData::class)
         ->ascend()
-        ->all(__DIR__ . '/../../_fixtures/controllers');
+        ->in(__DIR__ . '/../../_fixtures/controllers');
 
     expect($action->getFormData($vocabulary))->toMatchArray(['my' => 'factory data']);
 })->group('route-action', 'route-action::form-data', 'route-action::form-data:factory');
