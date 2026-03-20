@@ -28,22 +28,36 @@ class PostmanServiceProvider extends ServiceProvider
      * route aliasing, structure depth, authentication types, model documentation,
      * description setting, and additional headers.
      */
-    public function register(): void
+    public function boot(): void
     {
         // Extend Route class with postman-related methods
+        $this->registerRouteMacros();
+
+        // Extend RouteRegistrar class with postman-related methods
+        $this->registerRouterRegistrarMacros();
+
+        // Register macros for Router class to fallback to RouteRegistrar extended methods.
+        $this->registerRouterMacros();
+    }
+
+    protected function registerRouteMacros(): void
+    {
         Route::macro('alias', self::aliasCallback());
         Route::macro('auth', self::authCallback());
         Route::macro('description', self::descriptionCallback());
         Route::macro('additionalHeaders', self::additionalHeadersCallback());
         Route::macro('structureDepth', self::structureDepthCallback());
         Route::macro('getPostmanAction', self::getPostmanActionCallback());
+    }
 
-        // Extend RouteRegistrar class with postman-related methods
+    protected function registerRouterRegistrarMacros() {
         RouteRegistrar::macro('auth', self::authCallback('attributes'));
         RouteRegistrar::macro('additionalHeaders', self::additionalHeadersCallback('attributes'));
         RouteRegistrar::macro('structureDepth', self::structureDepthCallback('attributes'));
+    }
 
-        // Register macros for Router class to fallback to RouteRegistrar extended methods.
+    protected function registerRouterMacros()
+    {
         Router::macro('auth', function (AuthenticationContract $type) {
             /** @var Router $self */
             $self = $this;
