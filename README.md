@@ -35,6 +35,65 @@ Install the package via Composer:
 composer require amondar-libs/php-postman
 ```
 
+## Getting started
+
+The below example shows how to export a Postman collection from Laravel routes.
+But you can integrate this into your none-Laravel application by creating your RoutesParser class.
+
+```php
+class ExportPostmanCollectionController
+{
+    public function __invoke(Router $router)
+    {
+        $export = cache()
+            ->store('file')
+            ->rememberForever('postman-collection', fn() => [
+                'name'    => $name = now()->format('Y-m-d-H-i-s') . '-postman-collection.json',
+                'content' => $this->export($router, $name),
+            ]);
+
+        return response()->streamDownload(
+            function () use ($export) {
+                echo $export['content'];
+            },
+            $export['name'],
+            [
+                'Content-Type' => 'application/json',
+            ]
+        );
+    }
+
+    private function export(RouteCollection $router, string $name): string
+    {
+        $routes = (new LaravelRoutesParser)->parseLaravelRoutes($router->getRoutes());
+
+        return Export::from($routes->filterRoutes(
+            RouteFilter::apply()
+                ->affectedByPackage()
+                ->byMiddleware('api')
+        ), url('/'))
+            ->parseDataIn(app_path())
+            ->useOAuthTokenPath('/oauth/token')
+            ->useDefaultAuth(
+                new OAuthCodeWithPKCE(
+                    callbackUrl: '{{base_url}}/auth/v1/callback',
+                    authUrl: '{{base_url}}/oauth/authorize',
+                    accessTokenUrl: '{{oauth_full_url}}',
+                    state: 'development-state',
+                    clientId: '{{postman_pkce_client_id}}',
+                    tokenName: config('app.name') . ' PKCE Token'
+                )
+            )
+            ->withGlobalVariables([
+                'postman_pkce_client_id' => config('project.authentication.postman_pkce_client_id', ''),
+            ])
+            ->toJson($name);
+    }
+}
+```
+
+> Remember to add the optimize command in AppServiceProvider to clear the cache after each update in docker (of course if you're using it).
+
 ### Requirements
 
 - PHP 8.3 or higher
