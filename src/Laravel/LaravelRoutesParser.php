@@ -9,6 +9,7 @@ use Amondar\Postman\Route\Route;
 use Amondar\Postman\Route\RouteAction;
 use Amondar\Postman\Route\RouteCollection;
 use Illuminate\Routing\Route as LaravelRoute;
+use Illuminate\Routing\RouteAction as LaravelRouteAction;
 use Illuminate\Routing\RouteCollectionInterface;
 
 /**
@@ -88,9 +89,11 @@ final readonly class LaravelRoutesParser implements RouteParserContract
             );
         }
 
-        return new RouteAction(
-            closure: $route->getAction('uses')
-        );
+        $action = $route->getAction();
+        $uses = LaravelRouteAction::containsSerializedClosure($action) ? unserialize($action['uses'])->getClosure() : $action['uses'];
 
+        return new RouteAction(
+            closure: $uses
+        );
     }
 }
