@@ -14,8 +14,6 @@ use Illuminate\Routing\RouteCollectionInterface;
 /**
  * Class LaravelRoutesParser
  *
- * @internal
- *
  * @author Amondar-SO
  */
 final readonly class LaravelRoutesParser implements RouteParserContract
