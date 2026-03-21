@@ -89,6 +89,7 @@ class Routes
             clientId: 'my-client-id',
             tokenName: 'My token name here',
         ))
+            ->additionalHeaders([ 'X-Custom-Header' => 'my-custom-header' ])
             ->structureDepth(0)
             ->middleware(['api', 'auth:api'])
             ->prefix('api/v2')

@@ -14,13 +14,15 @@ it('should:  `export as plain json`', function () {
     $tester = makeExportCommandTester();
 
     $exitCode = $tester->execute([
-        '--laravel'          => true,
-        '--format'           => 'json',
-        '-name'              => 'postman',
-        '-description'       => 'postman description',
-        '-attributes'        => [__DIR__ . '/../../../_fixtures/controllers'],
-        '-url'               => 'http://localhost',
-        '-oauth-url'         => '/something-before/oauth/token',
+        '--laravel'           => true,
+        '--format'            => 'json',
+        '-name'               => 'postman',
+        '-description'        => 'postman description',
+        '-attributes'         => [__DIR__ . '/../../../_fixtures/controllers'],
+        '-url'                => 'http://localhost',
+        '-oauth-url'          => '/something-before/oauth/token',
+        '-H'                  => ['Accept: application/json', 'Content-Type: application/json'],
+        '-VR'                 => ['my_var: my_value'],
     ]);
 
     expect($exitCode)->toBe(Command::SUCCESS)
@@ -33,14 +35,16 @@ it('should:  `export as a file`', function () {
     $tester = makeExportCommandTester();
 
     $exitCode = $tester->execute([
-        '--laravel'          => true,
-        '--format'           => 'json',
-        '--output'           => __DIR__ . '/../../../_fixtures/postman.json',
-        '-name'              => 'postman',
-        '-description'       => 'postman description',
-        '-attributes'        => [__DIR__ . '/../../../_fixtures/controllers'],
-        '-url'               => 'http://localhost',
-        '-oauth-url'         => '/something-before/oauth/token',
+        '--laravel'           => true,
+        '--format'            => 'json',
+        '--output'            => __DIR__ . '/../../../_fixtures/postman.json',
+        '-name'               => 'postman',
+        '-description'        => 'postman description',
+        '-attributes'         => [__DIR__ . '/../../../_fixtures/controllers'],
+        '-url'                => 'http://localhost',
+        '-oauth-url'          => '/something-before/oauth/token',
+        '-H'                  => ['Accept: application/json', 'Content-Type: application/json'],
+        '-VR'                 => ['my_var: my_value'],
     ]);
 
     expect($exitCode)->toBe(Command::SUCCESS)
@@ -120,6 +124,7 @@ it('should:  `filter routes by middlewares`', function () {
         '-url'                     => 'http://localhost',
         '-oauth-url'               => '/something-before/oauth/token',
         '-middlewares'             => ['auth:*'],
+        '-affected-only'           => true,
     ]);
 
     expect($exitCode)->toBe(Command::SUCCESS)

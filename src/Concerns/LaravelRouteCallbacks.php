@@ -7,6 +7,7 @@ namespace Amondar\Postman\Concerns;
 use Amondar\Postman\Blueprints\Header;
 use Amondar\Postman\Contracts\AuthenticationContract;
 use Closure;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Stringable;
 
@@ -100,7 +101,7 @@ trait LaravelRouteCallbacks
             /** @var \Illuminate\Routing\Route|\Illuminate\Routing\RouteRegistrar $self */
             /** @phpstan-ignore-next-line */
             $self = $this;
-            $headersBag = collect($headers)
+            $headersBag = (new Collection($headers))
                 ->filter(
                     fn($item) => is_array($item)
                                  && isset($item[ 'key' ]) && is_string($item[ 'key' ])
@@ -131,7 +132,7 @@ trait LaravelRouteCallbacks
             $data = $self->getAction('postmanExtracted');
 
             if ($data === null) {
-                $data = $self->action['postmanExtracted'] = collect($self->getAction())
+                $data = $self->action['postmanExtracted'] = (new Collection($self->getAction()))
                     ->filter(fn(mixed $value, string $key) => Str::startsWith($key, 'postman'))
                     ->mapWithKeys(fn(mixed $value, string $key) => [
                         ($key === 'postman' ? $key : Str::camel(Str::replace('postman', '', $key))) => $value,

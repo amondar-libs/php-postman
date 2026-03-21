@@ -10,7 +10,6 @@ use Amondar\Postman\Blueprints\RequestData;
 use Amondar\Postman\Contracts\AuthenticationContract;
 use Amondar\Postman\Enums\Method;
 use Generator;
-use Illuminate\Support\Collection;
 use Stringable;
 
 /**
@@ -35,11 +34,9 @@ final readonly class Route
         public ?string $alias = null,
         public string|Stringable|null $description = null,
         public ?int $structureDepth = null,
-        public Collection $additionalHeaders = new Collection,
+        public array $headers = [],
         public ?AuthenticationContract $auth = null
-    ) {
-        //
-    }
+    ) {}
 
     /**
      * Assigns authentication details to the route.
@@ -88,7 +85,7 @@ final readonly class Route
      * @param  string  $host  The host to be used in generating the request.
      * @return Generator<Request>
      */
-    public function mapToRequestBlueprint(string $host, array $formData = []): Generator
+    public function mapToRequestBlueprint(string $host, array $formData, array $additionalHeaders = []): Generator
     {
         foreach ($this->methods as $method) {
             $method = Method::fromString($method);
@@ -100,7 +97,7 @@ final readonly class Route
                         path: $this->path,
                         host: $host,
                         method: $method,
-                        headers: $this->additionalHeaders,
+                        headers: array_merge($additionalHeaders, $this->headers),
                         auth: $this->auth ?? new None,
                         description: $this->description,
                         formData: $formData
@@ -108,5 +105,17 @@ final readonly class Route
                 );
             }
         }
+    }
+
+    /**
+     * Determine if the current instance is affected by specific package-related attributes.
+     */
+    public function affectedByPackage(): bool
+    {
+        return $this->alias !== null
+            || $this->description !== null
+            || $this->auth !== null
+            || $this->headers !== []
+            || $this->structureDepth !== null;
     }
 }

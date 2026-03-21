@@ -26,6 +26,13 @@ final class RouteFilter
         return new self;
     }
 
+    public function affectedByPackage(): RouteFilter
+    {
+        $this->filters[] = static fn(Route $route): bool => $route->affectedByPackage();
+
+        return $this;
+    }
+
     public function byName(string|array $name): RouteFilter
     {
         $this->filters[] = static fn(Route $route): bool => Str::is($name, $route->name);

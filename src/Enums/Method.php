@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace Amondar\Postman\Enums;
 
+use Illuminate\Support\Collection;
+
 enum Method: string
 {
     case GET = 'GET';
@@ -45,7 +47,7 @@ enum Method: string
 
         return [
             'raw'   => $rawUrl . '?' . $query,
-            'query' => collect($data)
+            'query' => (new Collection($data))
                 ->map(fn($value, $key) => [ 'key' => $key, 'value' => $value ])
                 ->values()
                 ->all(),

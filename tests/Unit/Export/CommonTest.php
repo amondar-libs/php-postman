@@ -50,3 +50,25 @@ it('should:  `export with default auth`', function () {
 })
     ->group('export', 'export::array:common')
     ->note('Create a route without auth completely. Export and set the default global auth type.');
+
+it('should:  `export with global headers`', function () {
+    $routes = new Amondar\Postman\Route\RouteCollection;
+
+    $routes->add(makeFakeRoute());
+
+    $data = Amondar\Postman\Export::from($routes, 'http://localhost/')->withGlobalHeaders([
+        'Accept' => 'application/json',
+    ])->toArray();
+
+    expect($data['item'][0]['request']['header'])->toMatchArray(
+        [
+            [
+                'key'   => 'Accept',
+                'value' => 'application/json',
+                'type'  => 'text',
+            ],
+        ]
+    );
+})
+    ->group('export', 'export::array:common')
+    ->note('Export and set the headers globally. Extend route ones.');

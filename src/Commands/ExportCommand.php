@@ -46,6 +46,8 @@ final class ExportCommand extends Command
         $name = $input->getOption('collection-name') ?? 'postman.json';
         $description = $input->getOption('collection-description');
         $toFile = $input->getOption('output');
+        $headers = $this->normalizeAssociative($input->getOption('headers'));
+        $variables = $this->normalizeAssociative($input->getOption('variables'));
 
         if ($routes === null) {
             render(
@@ -64,6 +66,8 @@ final class ExportCommand extends Command
                 $oauthTokenUrl !== null,
                 fn(Export $exporter) => $exporter->useOAuthTokenPath($oauthTokenUrl)
             )
+            ->withGlobalHeaders($headers)
+            ->withGlobalVariables($variables)
             ->parseDataIn(...$lookAttributesIn)
             ->toJson($name, $description, $this->getJsonOptions($input), 100);
 
@@ -120,10 +124,16 @@ final class ExportCommand extends Command
                 'Base url for the OAuth requests. Will be set as {{oauth_full_url}} global variable. Should be something like "/oauth/token". If relative path provided, then will be prefixed with base url variable.'
             )
             ->addOption(
-                'configurator',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Fully qualified class name of the configurator class. Deprecated for now.'
+                'headers',
+                'H',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Additional headers to be sent with each request. Example: --headers="X-Custom-Header: my-custom-header".'
+            )
+            ->addOption(
+                'variables',
+                'VR',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Additional variables to be sent on collection. Example: --variables="my_var: my-value". Then in the collection you can use {{my_var}} variable.'
             )
             ->addOption(
                 'route-paths',
@@ -148,6 +158,12 @@ final class ExportCommand extends Command
                 'middlewares',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Filter routes by given middlewares. Can be passed inline separated by semicolon.'
+            )
+            ->addOption(
+                'route-affected-only',
+                'affected-only',
+                InputOption::VALUE_NONE,
+                'Filter routes that are affected by the package. E.g. routes that have package attributes - alias, description, etc.'
             )
             ->addOption(
                 'output',
@@ -258,12 +274,13 @@ final class ExportCommand extends Command
             return null;
         }
 
-        $filters = collect($input->getOptions())
+        $filters = (new Collection($input->getOptions()))
             ->filter(fn($value, $key) => Str::startsWith($key, 'route-'))
-            ->mapWithKeys(fn($value, $key) => [$key => $this->prepareFilterValues($value)])
+            ->mapWithKeys(fn($value, $key) => [$key => is_array($value) ? $this->prepareFilterValues($value) : $value])
             ->filter();
 
         $filter = RouteFilter::apply()
+            ->when($filters->has('route-affected-only'), fn(RouteFilter $filter) => $filter->affectedByPackage())
             ->when($filters->has('route-paths'), fn(RouteFilter $filter) => $filter->byPath($filters->get('route-paths')))
             ->when($filters->has('route-names'), fn(RouteFilter $filter) => $filter->byName($filters->get('route-names')))
             ->when($filters->has('route-methods'), fn(RouteFilter $filter) => $filter->byMethod($filters->get('route-methods')))
@@ -278,6 +295,18 @@ final class ExportCommand extends Command
         return (new Collection($values))
             ->map(fn($value) => Str::of($value)->explode(';'))
             ->flatten()
+            ->toArray();
+    }
+
+    protected function normalizeAssociative(array $input): array
+    {
+        return (new Collection($input))
+            ->map(function ($value) {
+                $pair = explode(':', $value);
+
+                return [mb_trim($pair[0]), mb_ltrim($pair[1] ?? '')];
+            })
+            ->mapWithKeys(fn($pair) => [$pair[0] => $pair[1]])
             ->toArray();
     }
 }

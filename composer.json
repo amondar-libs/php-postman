@@ -44,7 +44,9 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Amondar\\Postman\\Laravel\\PostmanServiceProvider"
+                "Amondar\\Postman\\Laravel\\PostmanRouteServiceProvider",
+                "Amondar\\Postman\\Laravel\\PostmanRouteRegistrarServiceProvider",
+                "Amondar\\Postman\\Laravel\\PostmanRouterServiceProvider"
             ]
         }
     },

@@ -8,7 +8,6 @@ use Amondar\Postman\Auth\None;
 use Amondar\Postman\Contracts\AuthenticationContract;
 use Amondar\Postman\Enums\Method;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Support\Collection;
 use Stringable;
 
 /**
@@ -20,6 +19,8 @@ use Stringable;
  */
 final readonly class RequestData implements Arrayable
 {
+    public array $headers;
+
     /**
      * RequestData constructor.
      */
@@ -27,12 +28,12 @@ final readonly class RequestData implements Arrayable
         public string $path,
         public string $host,
         public Method $method,
-        public Collection $headers = new Collection,
+        array $headers = [],
         public AuthenticationContract $auth = new None,
         public Stringable|string|null $description = null,
         public array $formData = [],
     ) {
-        //
+        $this->headers = Header::fromSimpleArray($headers);
     }
 
     public function toArray(): array
@@ -42,7 +43,7 @@ final readonly class RequestData implements Arrayable
 
         $request = [
             'method'      => $this->method->value,
-            'header'      => $this->headers->toArray(),
+            'header'      => array_map(fn($h) => $h->toArray(), $this->headers),
             'auth'        => $this->auth->toArray(),
             'url'         => [
                 'raw'  => "{$host[ 'scheme' ]}{$host['host']}/$path",

@@ -47,7 +47,7 @@ final readonly class LaravelRoutesParser implements RouteParserContract
                     alias: $route->getPostmanAction('alias'),
                     description: $route->getPostmanAction('description'),
                     structureDepth: $route->getPostmanAction('depth'),
-                    additionalHeaders: $route->getPostmanAction('headers') ?? new Collection,
+                    headers: $route->getPostmanAction('headers') ?? [],
                     auth: $route->getPostmanAction('auth')
                 )
             );

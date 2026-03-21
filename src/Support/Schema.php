@@ -35,8 +35,8 @@ class Schema implements Arrayable
 
     public function __construct(protected FileInfo $info)
     {
-        $this->items = collect();
-        $this->variables = collect();
+        $this->items = new Collection;
+        $this->variables = new Collection;
     }
 
     /**

@@ -37,7 +37,8 @@ function makeFakeRoute(
     ?Amondar\Postman\Route\RouteAction $action = null,
     string $alias = 'Test name',
     Stringable|string|null $description = 'Test description',
-    ?AuthenticationContract $auth = null
+    ?AuthenticationContract $auth = null,
+    array $headers = [],
 ): Amondar\Postman\Route\Route {
     return new Amondar\Postman\Route\Route(
         name: $name,
@@ -48,6 +49,7 @@ function makeFakeRoute(
         middleware: $middleware,
         alias: $alias,
         description: $description,
+        headers: $headers,
         auth: $auth
     );
 }
@@ -57,7 +59,7 @@ function makeFakeRequest(
     string $path = '/test',
     string $host = 'http://localhost',
     Method $method = Method::GET,
-    Collection $headers = new Collection,
+    array $headers = [],
     None $auth = new None,
     Stringable|string|null $description = null
 ): Amondar\Postman\Blueprints\Request {

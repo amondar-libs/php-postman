@@ -21,6 +21,18 @@ final readonly class Header implements Arrayable
         //
     }
 
+    public static function fromSimpleArray(array $headers): array
+    {
+        if ($headers === []) {
+            return [];
+        }
+
+        $keys = array_keys($headers);
+        $values = array_values($headers);
+
+        return array_map(fn($key, $value) => new self($key, $value), $keys, $values);
+    }
+
     public function toArray(): array
     {
         return [

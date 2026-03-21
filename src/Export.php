@@ -35,6 +35,8 @@ readonly class Export implements Arrayable
     public function __construct(
         protected RouteCollection $routes,
         string $baseUrl,
+        protected array $globalHeaders = [],
+        protected array $globalVariables = [],
         protected AuthenticationContract $defaultAuth = new None,
         protected ?string $oauthTokenPath = null,
         protected array $dataPaths = []
@@ -68,6 +70,8 @@ readonly class Export implements Arrayable
         return new Export(
             routes: $this->routes,
             baseUrl: $this->baseUrl,
+            globalHeaders: $this->globalHeaders,
+            globalVariables: $this->globalVariables,
             defaultAuth: $this->defaultAuth,
             oauthTokenPath: $this->oauthTokenPath,
             dataPaths: $paths
@@ -84,6 +88,8 @@ readonly class Export implements Arrayable
         return new Export(
             routes: $this->routes,
             baseUrl: $this->baseUrl,
+            globalHeaders: $this->globalHeaders,
+            globalVariables: $this->globalVariables,
             defaultAuth: $auth,
             oauthTokenPath: $this->oauthTokenPath,
             dataPaths: $this->dataPaths
@@ -100,9 +106,47 @@ readonly class Export implements Arrayable
         return new Export(
             routes: $this->routes,
             baseUrl: $this->baseUrl,
+            globalHeaders: $this->globalHeaders,
+            globalVariables: $this->globalVariables,
             defaultAuth: $this->defaultAuth,
             oauthTokenPath: $path,
             dataPaths: $this->dataPaths
+        );
+    }
+
+    /**
+     * Sets global headers for the export and creates an export instance.
+     *
+     * @param  array  $headers  The global headers to be applied to all requests in the export.
+     */
+    public function withGlobalHeaders(array $headers): Export
+    {
+        return new Export(
+            routes: $this->routes,
+            baseUrl: $this->baseUrl,
+            globalHeaders: $headers,
+            globalVariables: $this->globalVariables,
+            defaultAuth: $this->defaultAuth,
+            oauthTokenPath: $this->oauthTokenPath,
+            dataPaths: $this->dataPaths
+        );
+    }
+
+    /**
+     * Adds global variables to the export and prepares it for schema generation.
+     *
+     * @param  array  $variables  An associative array of global variables to include in the collection.
+     */
+    public function withGlobalVariables(array $variables): Export
+    {
+        return new Export(
+            routes: $this->routes,
+            baseUrl: $this->baseUrl,
+            globalHeaders: $this->globalHeaders,
+            globalVariables: $variables,
+            defaultAuth: $this->defaultAuth,
+            oauthTokenPath: $this->oauthTokenPath,
+            dataPaths: $this->dataPaths,
         );
     }
 
@@ -142,21 +186,10 @@ readonly class Export implements Arrayable
      */
     protected function export(string $name = 'postman.json', ?string $description = null): Schema
     {
-        $host = '{{base_url}}';
-        $schema = Schema::for($name, $description)
-            ->addVariable('base_url', $this->baseUrl)
-            ->when(
-                $this->oauthTokenPath !== null,
-                fn($schema) => $schema->addVariable(
-                    'oauth_full_url',
-                    Str::startsWith('http', $this->oauthTokenPath) ?
-                        $this->oauthTokenPath
-                        : "$host/" . mb_trim($this->oauthTokenPath, '/')
-                )
-            );
+        $schema = $this->makeShema($name, $description);
 
         $formDataVocabulary = $this->dataPaths === [] ?
-            collect()
+            new Collection
             : Parse::attribute(PostmanFormData::class)->ascend()->in(...$this->dataPaths);
 
         /** @var Route\Route $route */
@@ -169,12 +202,42 @@ readonly class Export implements Arrayable
 
             $formData = $this->getActionData($route->action, $formDataVocabulary);
 
-            foreach ($route->mapToRequestBlueprint($host, $formData) as $request) {
+            foreach ($route->mapToRequestBlueprint('{{base_url}}', $formData, $this->globalHeaders) as $request) {
                 $schema->pushRequest($structuredName, $request);
             }
         }
 
         return $schema;
+    }
+
+    /**
+     * Creates a schema instance with specified properties and variables for configuration.
+     */
+    protected function makeShema(string $name, ?string $description = null): Schema
+    {
+        $schema = Schema::for($name, $description)
+            ->addVariable('base_url', $this->baseUrl)
+            ->when(
+                $this->oauthTokenPath !== null,
+                fn($schema) => $schema->addVariable(
+                    'oauth_full_url',
+                    Str::startsWith('http', $this->oauthTokenPath) ?
+                        $this->oauthTokenPath
+                        : '{{base_url}}/' . mb_trim($this->oauthTokenPath, '/')
+                )
+            );
+
+        $variableArgs = array_map(
+            fn($k, $v) => [$k, $v],
+            array_keys($this->globalVariables),
+            array_values($this->globalVariables)
+        );
+
+        return array_reduce(
+            $variableArgs,
+            fn(Schema $schema, $variable) => $schema->replaceVariable(...$variable),
+            $schema
+        );
     }
 
     /**

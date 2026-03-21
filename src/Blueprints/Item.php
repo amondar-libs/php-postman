@@ -33,7 +33,7 @@ final readonly class Item implements Arrayable
      */
     public function addItem(string $name): Item
     {
-        $item = new Item($name, collect());
+        $item = new Item($name, new Collection);
 
         $this->items->push($item);
 

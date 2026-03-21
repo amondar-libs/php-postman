@@ -3,26 +3,27 @@
 [![PHP Version](https://img.shields.io/badge/php-%5E8.3-blue)](https://www.php.net/)
 [![Laravel](https://img.shields.io/badge/laravel-10%20%7C%2011%20%7C%2012-red)](https://laravel.com/)
 
-A PHP package that generates [Postman](https://www.postman.com/) collections from your application routes. It supports Laravel out of the box and can be extended to work with any PHP framework.
+A PHP package that generates [Postman](https://www.postman.com/) collections from your application routes. It supports
+Laravel out of the box and can be extended to work with any PHP framework.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
-  - [Laravel Integration](#laravel-integration)
-  - [Standalone CLI](#standalone-cli)
-  - [Programmatic Usage](#programmatic-usage)
+    - [Laravel Integration](#laravel-integration)
+    - [Standalone CLI](#standalone-cli)
+    - [Programmatic Usage](#programmatic-usage)
 - [Deep Dive](#deep-dive)
-  - [Authentication](#authentication)
-  - [Route Macros (Laravel)](#route-macros-laravel)
-  - [Route Filtering](#route-filtering)
-  - [Form Data Attributes](#form-data-attributes)
-  - [Descriptions](#descriptions)
-  - [CLI Options Reference](#cli-options-reference)
+    - [Authentication](#authentication)
+    - [Route Macros (Laravel)](#route-macros-laravel)
+    - [Route Filtering](#route-filtering)
+    - [Form Data Attributes](#form-data-attributes)
+    - [Descriptions](#descriptions)
+    - [CLI Options Reference](#cli-options-reference)
 - [Extending the Package](#extending-the-package)
-  - [Custom Route Parser](#custom-route-parser)
-  - [Custom Authentication](#custom-authentication)
-  - [Custom Form Data Renderable](#custom-form-data-renderable)
+    - [Custom Route Parser](#custom-route-parser)
+    - [Custom Authentication](#custom-authentication)
+    - [Custom Form Data Renderable](#custom-form-data-renderable)
 
 ---
 
@@ -41,7 +42,9 @@ composer require amondar-libs/php-postman
 
 ### Laravel Auto-Discovery
 
-The package ships with a Laravel service provider that is auto-discovered. No manual registration is needed. The service provider registers route macros (`alias`, `auth`, `description`, `additionalHeaders`, `structureDepth`) that you can use directly on your route definitions.
+The package ships with a Laravel service provider that is auto-discovered. No manual registration is needed. The service
+provider registers route macros (`alias`, `auth`, `description`, `additionalHeaders`, `structureDepth`) that you can use
+directly on your route definitions.
 
 ---
 
@@ -68,17 +71,15 @@ For non-Laravel projects, you can provide a custom route parser class:
     --output=postman.json
 ```
 
-If `--routes-parser` is not provided and `--laravel` is not set, the CLI will interactively ask for the parser class name.
+If `--routes-parser` is not provided and `--laravel` is not set, the CLI will interactively ask for the parser class
+name.
 
 ### Programmatic Usage
 
 You can also generate collections programmatically in your PHP code:
 
 ```php
-use Amondar\Postman\Export;
-use Amondar\Postman\Route\Route;
-use Amondar\Postman\Route\RouteCollection;
-use Amondar\Postman\Auth\Bearer;
+use Amondar\Postman\Auth\Bearer;use Amondar\Postman\Export;use Amondar\Postman\Route\Route;use Amondar\Postman\Route\RouteCollection;
 
 // Build a route collection
 $routes = new RouteCollection();
@@ -98,6 +99,8 @@ $routes->push(new Route(
 // Export to JSON
 $json = Export::from($routes, 'https://api.example.com')
     ->useDefaultAuth(Bearer::make('your-token'))
+    ->withGlobalHeaders(['MY-HEADER' => 'my-value'])
+    ->withGlobalVariables(['my_var' => 'my-value'])
     ->toJson('My API Collection');
 
 file_put_contents('postman.json', $json);
@@ -122,7 +125,8 @@ $json = Export::from($routes, config('app.url'))
 
 ### Authentication
 
-The package supports multiple authentication types that map directly to Postman's authentication options. Set a default auth for the entire collection or assign auth per route.
+The package supports multiple authentication types that map directly to Postman's authentication options. Set a default
+auth for the entire collection or assign auth per route.
 
 #### Bearer Token
 
@@ -231,7 +235,8 @@ Route::get('/api/v2/users', [UserController::class, 'index'])
 
 #### `description(Stringable|string $description)`
 
-Add a description to the route. Accepts a plain string, a `\Stringable` instance, or a class name that implements `Stringable`:
+Add a description to the route. Accepts a plain string, a `\Stringable` instance, or a class name that implements
+`Stringable`:
 
 ```php
 Route::get('/api/users', [UserController::class, 'index'])
@@ -241,7 +246,8 @@ Route::get('/api/users', [UserController::class, 'index'])
 
 #### `structureDepth(int $depth)`
 
-Control how deeply the route name is used for folder nesting in the Postman collection. By default, all segments except the last one are used as folder names:
+Control how deeply the route name is used for folder nesting in the Postman collection. By default, all segments except
+the last one are used as folder names:
 
 ```php
 // Route name: "api.v2.users.index"
@@ -265,14 +271,15 @@ Add custom headers to the Postman request:
 Route::get('/api/users', [UserController::class, 'index'])
     ->name('users.index')
     ->additionalHeaders([
-        ['key' => 'X-Custom-Header', 'value' => 'custom-value', 'type' => 'text'],
-        ['key' => 'Accept-Language', 'value' => 'en', 'type' => 'text'],
+        'X-Custom-Header' => 'custom-value',
+        'Accept-Language' => 'en',
     ]);
 ```
 
 ### Route Filtering
 
-Filter which routes are included in the exported collection. Filtering is available both via CLI options and programmatically.
+Filter which routes are included in the exported collection. Filtering is available both via CLI options and
+programmatically.
 
 #### CLI Filtering
 
@@ -316,7 +323,8 @@ $json = Export::from($filteredRoutes, $baseUrl)->toJson();
 
 ### Form Data Attributes
 
-Use the `#[PostmanFormData]` attribute to define request body data for your routes. The attribute can be applied to controller classes or methods and accepts either an inline array or a class implementing `Renderable`.
+Use the `#[PostmanFormData]` attribute to define request body data for your routes. The attribute can be applied to
+controller classes or methods and accepts either an inline array or a class implementing `Renderable`.
 
 #### Inline Array
 
@@ -382,7 +390,8 @@ Or via CLI:
 
 ### Descriptions
 
-Route descriptions support both plain strings and `Stringable` objects. This allows integration with markdown libraries or any custom description generator:
+Route descriptions support both plain strings and `Stringable` objects. This allows integration with markdown libraries
+or any custom description generator:
 
 ```php
 use Amondar\Postman\Contracts\Renderable;
@@ -402,21 +411,24 @@ Route::get('/api/users', [UserController::class, 'index'])
 
 ### CLI Options Reference
 
-| Option | Alias | Description |
-|---|---|---|
-| `--laravel` | — | Bootstrap and parse a Laravel application |
-| `--routes-parser` | `-parser` | Fully qualified class name of a custom route parser |
-| `--attributes-in` | `-attributes` | Directories to scan for `PostmanFormData` attributes (repeatable) |
-| `--collection-name` | `-name` | Name of the Postman collection (default: `postman.json`) |
-| `--collection-description` | `-description` | Description of the Postman collection |
-| `--base-url` | `-url` | Base URL for requests, stored as `{{base_url}}` variable |
-| `--oauth-token-url` | `-oauth-url` | OAuth token endpoint, stored as `{{oauth_full_url}}` variable |
-| `--route-paths` | `-paths` | Filter routes by path patterns (semicolon-separated) |
-| `--route-names` | `-names` | Filter routes by name patterns (semicolon-separated) |
-| `--route-methods` | `-methods` | Filter routes by HTTP methods (semicolon-separated) |
-| `--route-middlewares` | `-middlewares` | Filter routes by middleware (semicolon-separated) |
-| `--output` | — | File path to write the collection to (prints to stdout if omitted) |
-| `--format` | — | Output format: `json` (default) or `pretty-json` |
+| Option                     | Alias            | Description                                                                                                                                     |
+|----------------------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--laravel`                | —                | Bootstrap and parse a Laravel application                                                                                                       |
+| `--routes-parser`          | `-parser`        | Fully qualified class name of a custom route parser                                                                                             |
+| `--attributes-in`          | `-attributes`    | Directories to scan for `PostmanFormData` attributes (repeatable)                                                                               |
+| `--collection-name`        | `-name`          | Name of the Postman collection (default: `postman.json`)                                                                                        |
+| `--collection-description` | `-description`   | Description of the Postman collection                                                                                                           |
+| `--base-url`               | `-url`           | Base URL for requests, stored as `{{base_url}}` variable                                                                                        |
+| `--oauth-token-url`        | `-oauth-url`     | OAuth token endpoint, stored as `{{oauth_full_url}}` variable                                                                                   |
+| `--headers`                | `-H`             | Additional headers to be sent with each request. Example: --headers="X-Custom-Header: my-custom-header".                                        |
+| `--variables`              | `-VR`            | Additional variables to be sent on collection. Example: --variables="my_var: my-value". Then in the collection you can use {{my_var}} variable. |
+| `--route-paths`            | `-paths`         | Filter routes by path patterns (semicolon-separated)                                                                                            |
+| `--route-names`            | `-names`         | Filter routes by name patterns (semicolon-separated)                                                                                            |
+| `--route-methods`          | `-methods`       | Filter routes by HTTP methods (semicolon-separated)                                                                                             |
+| `--route-middlewares`      | `-middlewares`   | Filter routes by middleware (semicolon-separated)                                                                                               |
+| `--route-affected-only`    | `-affected-only` | Filter routes that are affected by the package. E.g. routes that have package attributes - alias, description, etc.                             |
+| `--output`                 | —                | File path to write the collection to (prints to stdout if omitted)                                                                              |
+| `--format`                 | —                | Output format: `json` (default) or `pretty-json`                                                                                                |
 
 ---
 

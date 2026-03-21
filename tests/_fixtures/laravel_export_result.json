@@ -567,7 +567,13 @@
             "name": "Users list V2",
             "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                    {
+                        "key": "X-Custom-Header",
+                        "value": "my-custom-header",
+                        "type": "text"
+                    }
+                ],
                 "auth": {
                     "type": "oauth2",
                     "oauth2": [
