@@ -10,7 +10,6 @@ use Amondar\Postman\Route\RouteAction;
 use Amondar\Postman\Route\RouteCollection;
 use Illuminate\Routing\Route as LaravelRoute;
 use Illuminate\Routing\RouteCollectionInterface;
-use Illuminate\Support\Collection;
 
 /**
  * Class LaravelRoutesParser

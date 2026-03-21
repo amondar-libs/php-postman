@@ -6,7 +6,6 @@ use Amondar\Postman\Auth\None;
 use Amondar\Postman\Commands\ExportCommand;
 use Amondar\Postman\Contracts\AuthenticationContract;
 use Amondar\Postman\Enums\Method;
-use Illuminate\Support\Collection;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 

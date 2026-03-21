@@ -18,3 +18,5 @@ parameters:
         - '#Call to an undefined method .+::additionalHeaders\(\)#'
         - '#Call to an undefined method .+::structureDepth\(\)#'
         - '#PHPDoc tag @var for property Amondar\\Postman\\Route\\RouteFilter::\$filters contains unresolvable type#'
+        - '#Collection<class-string, Collection<string, Collection<int, Discovered<PostmanFormData>>>#'
+        - '#Access to protected property Illuminate\\Routing\\RouteRegistrar::\$attributes#'
