@@ -8,6 +8,15 @@
             "email": "zaxodu11@gmail.com"
         }
     ],
+    "keywords": [
+        "php-postman",
+        "postman",
+        "documentation",
+        "api",
+        "laravel",
+        "laravel-postman",
+        "laravel-api-documentation"
+    ],
     "bin": [
         "bin/postman"
     ],
